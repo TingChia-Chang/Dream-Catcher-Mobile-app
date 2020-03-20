@@ -1,5 +1,6 @@
 package edu.vt.cs.cs5254.dreamcatcher
 
+import android.content.Context
 import android.nfc.Tag
 import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
@@ -16,15 +17,28 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import edu.vt.cs.cs5254.dreamcatcher.database.Dream
+import java.util.*
 
 private const val TAG = "DreamListFragment"
 class DreamListFragment : Fragment() {
+
+    interface Callbacks{
+        fun onDreamSelected(dreamId: UUID)
+    }
+
+    private var callbacks: Callbacks? = null
+
     private lateinit var dreamRecyclerView: RecyclerView
     private var adapter: DreamAdapter?= DreamAdapter(emptyList())
 
 
     private val dreamListViewModel: DreamListViewModel by lazy {
         ViewModelProviders.of(this).get(DreamListViewModel::class.java)
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callbacks = context as Callbacks?
     }
 
 
@@ -61,6 +75,11 @@ class DreamListFragment : Fragment() {
 
             }
         )
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callbacks = null
     }
 
     private fun updateUI(dreams: List<Dream>){
@@ -103,9 +122,8 @@ class DreamListFragment : Fragment() {
 
         }
 
-        override fun onClick(v: View){
-            Toast.makeText(context, "${dream.description} pressed", Toast.LENGTH_SHORT)
-                .show()
+        override fun onClick(v: View?){
+            callbacks?.onDreamSelected(dream.id)
         }
 
     }

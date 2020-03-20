@@ -2,23 +2,32 @@ package edu.vt.cs.cs5254.dreamcatcher
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import java.util.*
 
-class MainActivity : AppCompatActivity() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+private const val TAG = "MainActivity"
 
-        val dreamDetailFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
+class MainActivity : AppCompatActivity(),
+    DreamListFragment.Callbacks{
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            setContentView(R.layout.activity_main)
 
-        if (dreamDetailFragment == null){
-            val fragment = DreamListFragment.newInstance()
-            supportFragmentManager
-                .beginTransaction()
-                .add(R.id.fragment_container, fragment)
-                .commit()
+            val dreamDetailFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
+
+            if (dreamDetailFragment == null){
+                val fragment = DreamListFragment.newInstance()
+                supportFragmentManager
+                    .beginTransaction()
+                    .add(R.id.fragment_container, fragment)
+                    .commit()
+            }
+
         }
-
-    }
+        override fun onDreamSelected(dreamId: UUID) {
+            Log.d(TAG, "MainActivity.onCrimeSelected: $dreamId")
+        }
 }
+
 
