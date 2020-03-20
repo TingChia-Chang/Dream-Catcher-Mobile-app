@@ -26,7 +26,12 @@ class MainActivity : AppCompatActivity(),
 
         }
         override fun onDreamSelected(dreamId: UUID) {
-            Log.d(TAG, "MainActivity.onCrimeSelected: $dreamId")
+            val fragment = DreamDetailFragment()
+            supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .addToBackStack(null)
+                .commit()
         }
 }
 
