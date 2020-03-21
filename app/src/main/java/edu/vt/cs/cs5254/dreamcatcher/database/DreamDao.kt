@@ -17,7 +17,7 @@ interface DreamDao {
     @Update
     fun updateDream(dream:Dream)
 
-    @Query("DELETE FROM dream_entry WHERE id=(:dreamId)")
+    @Query("DELETE FROM dream_entry WHERE dreamId=(:dreamId)")
     fun deleteDreamEntries(dreamId: UUID)
 
     @Insert
