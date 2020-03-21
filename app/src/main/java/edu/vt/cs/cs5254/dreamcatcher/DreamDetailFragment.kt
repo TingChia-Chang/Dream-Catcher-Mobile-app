@@ -15,6 +15,7 @@ import android.widget.EditText
 import edu.vt.cs.cs5254.dreamcatcher.database.Dream
 import java.util.*
 import androidx.lifecycle.Observer
+import edu.vt.cs.cs5254.dreamcatcher.database.DreamEntryKind
 import edu.vt.cs.cs5254.dreamcatcher.database.DreamWithEntries
 
 private const val TAG = "DreamDetailFragment"
@@ -36,7 +37,11 @@ class DreamDetailFragment : Fragment() {
     private lateinit var viewModel: DreamDetailViewModel
 
     private lateinit var titleField: EditText
-    private lateinit var dateButton: Button
+    private lateinit var entry0_Button: Button
+    private lateinit var entry1_Button: Button
+    private lateinit var entry2_Button: Button
+    private lateinit var entry3_Button: Button
+    private lateinit var entry4_Button: Button
     private lateinit var realizedCheckBox: CheckBox
     private lateinit var deferredCheckBox: CheckBox
     private lateinit var dreamWithEntries: DreamWithEntries
@@ -58,23 +63,47 @@ class DreamDetailFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.dream_detail_fragment, container, false)
         titleField = view.findViewById(R.id.dream_title) as EditText
-        dateButton = view.findViewById(R.id.dream_entry_1_button) as Button
+        entry0_Button = view.findViewById(R.id.dream_entry_0_button) as Button
+        entry1_Button = view.findViewById(R.id.dream_entry_1_button) as Button
+        entry2_Button = view.findViewById(R.id.dream_entry_2_button) as Button
+        entry3_Button = view.findViewById(R.id.dream_entry_3_button) as Button
+        entry4_Button = view.findViewById(R.id.dream_entry_4_button) as Button
         realizedCheckBox = view.findViewById(R.id.dream_realized) as CheckBox
         deferredCheckBox = view.findViewById(R.id.dream_deferred) as CheckBox
+
+        entry1_Button.visibility = View.GONE
+        entry2_Button.visibility = View.GONE
+        entry3_Button.visibility = View.GONE
 
 
 
         realizedCheckBox.apply {
             setOnCheckedChangeListener { _, isChecked ->
+                if (realizedCheckBox.isChecked == true){
+                    entry4_Button.visibility = View.VISIBLE
+                }
+
                 dreamWithEntries.dream.isRealized = isChecked
                 deferredCheckBox.isEnabled = !dreamWithEntries.dream.isRealized
+                entry4_Button.text = "DREAM REALIZED"
+                if (realizedCheckBox.isChecked == false && deferredCheckBox.isChecked == false){
+                    entry4_Button.visibility = View.GONE
+                }
+
             }
         }
 
         deferredCheckBox.apply {
             setOnCheckedChangeListener { _, isChecked ->
+                if(deferredCheckBox.isChecked == true){
+                    entry4_Button.visibility = View.VISIBLE
+                }
                 dreamWithEntries.dream.isDeferred = isChecked
                 realizedCheckBox.isEnabled = !dreamWithEntries.dream.isDeferred
+                entry4_Button.text = "DREAM DEFERRED"
+                if (realizedCheckBox.isChecked == false && deferredCheckBox.isChecked == false){
+                    entry4_Button.visibility = View.GONE
+                }
             }
         }
 
@@ -128,8 +157,42 @@ class DreamDetailFragment : Fragment() {
 
     private fun updateUI() {
         titleField.setText(dreamWithEntries.dream.description)
-        dateButton.text = dreamWithEntries.dream.dateRevealed.toString()
-        dateButton.isEnabled = false
+        var count = 0
+        for (entry in dreamWithEntries.dreamEntries){
+            if (entry.kind == DreamEntryKind.COMMENT){
+                when (count) {
+                    0 -> {
+                        entry1_Button.text = entry.comment
+                        entry1_Button.visibility = View.VISIBLE
+                    }
+                    1 -> {
+                        entry2_Button.text = entry.comment
+                        entry2_Button.visibility = View.VISIBLE
+                    }
+                    2 -> {
+                        entry3_Button.text = entry.comment
+                        entry3_Button.visibility = View.VISIBLE
+                    }
+                }
+                count += 1
+            }
+            else if (entry.kind == DreamEntryKind.REVEALED){
+                entry0_Button.text = "DREAM REVEALED"
+            }
+
+        }
+
+        if (dreamWithEntries.dream.isRealized == true){
+            entry4_Button.text = "DREAM REALIZED"
+        }
+        else if (dreamWithEntries.dream.isDeferred == true){
+            entry4_Button.text = "DREAM DEFERRED"
+        }
+
+
+
+
+
 
 
         realizedCheckBox.apply {

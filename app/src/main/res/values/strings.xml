@@ -5,10 +5,10 @@
     <string name="dream_realized">Realized</string>
     <string name="dream_deferred">Deferred</string>
     <string name="dream_details_label">DETAILS</string>
-    <string name="dream_entry_0_button">DREAM REVEALED</string>
-    <string name="dream_entry_1_button">DREAM ENTRY 1</string>
-    <string name="dream_entry_2_button">DREAM ENTRY 2</string>
-    <string name="dream_entry_3_button">DREAM ENTRY 3</string>
+    <string name="dream_entry_0_button"></string>
+    <string name="dream_entry_1_button"></string>
+    <string name="dream_entry_2_button"></string>
+    <string name="dream_entry_3_button"></string>
     <string name="dream_entry_4_button"></string>
 
 </resources>
