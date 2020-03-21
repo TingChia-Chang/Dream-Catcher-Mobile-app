@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import edu.vt.cs.cs5254.dreamcatcher.database.Dream
+import edu.vt.cs.cs5254.dreamcatcher.database.DreamEntry
 import edu.vt.cs.cs5254.dreamcatcher.database.DreamWithEntries
 import java.util.*
 
@@ -20,6 +21,10 @@ class DreamDetailViewModel : ViewModel() {
 
     fun loadDream(dreamId: UUID){
         dreamIdLiveData.value = dreamId
+    }
+
+    fun saveDreams(dreamWithEntries: DreamWithEntries){
+        dreamRepository.updateDreamWithEntries(dreamWithEntries)
     }
 
 }

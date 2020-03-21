@@ -18,6 +18,7 @@ import edu.vt.cs.cs5254.dreamcatcher.database.DreamEntry
 import kotlinx.android.synthetic.main.dream_detail_fragment.*
 import java.util.*
 import androidx.lifecycle.Observer
+import edu.vt.cs.cs5254.dreamcatcher.database.DreamWithEntries
 
 private const val TAG = "DreamDetailFragment"
 private const val ARG_DREAM_ID = "dream_id"
@@ -40,7 +41,7 @@ class DreamDetailFragment : Fragment() {
     private lateinit var dateButton: Button
     private lateinit var realizedCheckBox: CheckBox
     private lateinit var deferredCheckBox: CheckBox
-    private lateinit var dreamEntries: List<DreamEntry>
+    private lateinit var dreamEntries: DreamWithEntries
     private val dreamDetailViewModel: DreamDetailViewModel by lazy{
         ViewModelProviders.of(this).get(DreamDetailViewModel::class.java)
     }
@@ -85,7 +86,7 @@ class DreamDetailFragment : Fragment() {
             viewLifecycleOwner,
             Observer {dreamEntries->
                 dreamEntries?.let {
-                    this.dreamEntries = dreamEntries.dreamEntries
+                    this.dreamEntries = it
                     updateUI()
                 }
 
@@ -116,6 +117,11 @@ class DreamDetailFragment : Fragment() {
             }
         }
         titleField.addTextChangedListener(titleWatcher)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        dreamDetailViewModel.saveDreams(dreamEntries)
     }
 
     private fun updateUI(){
