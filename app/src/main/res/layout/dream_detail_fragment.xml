@@ -56,6 +56,21 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/dream_entry_1_button"/>
+    <Button
+        android:id="@+id/dream_entry_2_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/dream_entry_2_button"/>
+    <Button
+        android:id="@+id/dream_entry_3_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/dream_entry_3_button"/>
+    <Button
+        android:id="@+id/dream_entry_4_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/dream_entry_4_button"/>
 
 
 </LinearLayout>

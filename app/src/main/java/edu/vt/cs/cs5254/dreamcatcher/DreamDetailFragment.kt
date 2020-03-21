@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,14 +12,26 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
+import androidx.lifecycle.ViewModelProvider
 import edu.vt.cs.cs5254.dreamcatcher.database.Dream
+import edu.vt.cs.cs5254.dreamcatcher.database.DreamEntry
 import kotlinx.android.synthetic.main.dream_detail_fragment.*
+import java.util.*
+import androidx.lifecycle.Observer
 
-
+private const val TAG = "DreamDetailFragment"
+private const val ARG_DREAM_ID = "dream_id"
 class DreamDetailFragment : Fragment() {
 
     companion object {
-        fun newInstance() = DreamDetailFragment()
+        fun newInstance(dreamID: UUID) : DreamDetailFragment{
+            val args = Bundle().apply{
+                putSerializable(ARG_DREAM_ID, dreamID)
+            }
+            return DreamDetailFragment().apply {
+                arguments = args
+            }
+        }
     }
 
     private lateinit var viewModel: DreamDetailViewModel
@@ -27,10 +40,17 @@ class DreamDetailFragment : Fragment() {
     private lateinit var dateButton: Button
     private lateinit var realizedCheckBox: CheckBox
     private lateinit var deferredCheckBox: CheckBox
+    private lateinit var dreamEntries: List<DreamEntry>
+    private val dreamDetailViewModel: DreamDetailViewModel by lazy{
+        ViewModelProviders.of(this).get(DreamDetailViewModel::class.java)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         dream = Dream()
+        val dreamID:UUID = arguments?.getSerializable(ARG_DREAM_ID) as UUID
+        dreamDetailViewModel.loadDream(dreamID)
+
     }
 
     override fun onCreateView(
@@ -59,6 +79,20 @@ class DreamDetailFragment : Fragment() {
         return view
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        dreamDetailViewModel.dreamLiveData.observe(
+            viewLifecycleOwner,
+            Observer {dreamEntries->
+                dreamEntries?.let {
+                    this.dreamEntries = dreamEntries.dreamEntries
+                    updateUI()
+                }
+
+            }
+        )
+    }
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(DreamDetailViewModel::class.java)
@@ -82,6 +116,19 @@ class DreamDetailFragment : Fragment() {
             }
         }
         titleField.addTextChangedListener(titleWatcher)
+    }
+
+    private fun updateUI(){
+        titleField.setText(dream.description)
+        dateButton.text = dream.dateRevealed.toString()
+        realizedCheckBox.apply {
+            isChecked = dream.isRealized
+            jumpDrawablesToCurrentState()
+        }
+        deferredCheckBox.apply {
+            isChecked = dream.isDeferred
+            jumpDrawablesToCurrentState()
+        }
     }
 
 }

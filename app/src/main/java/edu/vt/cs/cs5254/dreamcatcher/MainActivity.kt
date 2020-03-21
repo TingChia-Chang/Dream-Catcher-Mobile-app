@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity(),
 
         }
         override fun onDreamSelected(dreamId: UUID) {
-            val fragment = DreamDetailFragment()
+            val fragment = DreamDetailFragment.newInstance(dreamId)
             supportFragmentManager
                 .beginTransaction()
                 .replace(R.id.fragment_container, fragment)
