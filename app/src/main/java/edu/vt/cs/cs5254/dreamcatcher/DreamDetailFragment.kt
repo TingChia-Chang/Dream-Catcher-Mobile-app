@@ -1,5 +1,6 @@
 package edu.vt.cs.cs5254.dreamcatcher
 
+import android.graphics.Color
 import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.text.Editable
@@ -17,6 +18,7 @@ import java.util.*
 import androidx.lifecycle.Observer
 import edu.vt.cs.cs5254.dreamcatcher.database.DreamEntryKind
 import edu.vt.cs.cs5254.dreamcatcher.database.DreamWithEntries
+import java.text.DateFormat
 
 private const val TAG = "DreamDetailFragment"
 private const val ARG_DREAM_ID = "dream_id"
@@ -77,6 +79,7 @@ class DreamDetailFragment : Fragment() {
 
 
 
+
         realizedCheckBox.apply {
             setOnCheckedChangeListener { _, isChecked ->
                 if (realizedCheckBox.isChecked == true){
@@ -86,6 +89,7 @@ class DreamDetailFragment : Fragment() {
                 dreamWithEntries.dream.isRealized = isChecked
                 deferredCheckBox.isEnabled = !dreamWithEntries.dream.isRealized
                 entry4_Button.text = "DREAM REALIZED"
+                entry4_Button.setBackgroundColor(Color.parseColor("#8DD33B"))
                 if (realizedCheckBox.isChecked == false && deferredCheckBox.isChecked == false){
                     entry4_Button.visibility = View.GONE
                 }
@@ -101,6 +105,7 @@ class DreamDetailFragment : Fragment() {
                 dreamWithEntries.dream.isDeferred = isChecked
                 realizedCheckBox.isEnabled = !dreamWithEntries.dream.isDeferred
                 entry4_Button.text = "DREAM DEFERRED"
+                entry4_Button.setBackgroundColor(Color.parseColor("#F06055"))
                 if (realizedCheckBox.isChecked == false && deferredCheckBox.isChecked == false){
                     entry4_Button.visibility = View.GONE
                 }
@@ -162,15 +167,15 @@ class DreamDetailFragment : Fragment() {
             if (entry.kind == DreamEntryKind.COMMENT){
                 when (count) {
                     0 -> {
-                        entry1_Button.text = entry.comment
+                        entry1_Button.text = entry.comment + " ("+DateFormat.getDateInstance(android.icu.text.DateFormat.MEDIUM).format(this.dreamWithEntries.dream.dateRevealed)+")"
                         entry1_Button.visibility = View.VISIBLE
                     }
                     1 -> {
-                        entry2_Button.text = entry.comment
+                        entry2_Button.text = entry.comment + " ("+DateFormat.getDateInstance(android.icu.text.DateFormat.MEDIUM).format(this.dreamWithEntries.dream.dateRevealed)+")"
                         entry2_Button.visibility = View.VISIBLE
                     }
                     2 -> {
-                        entry3_Button.text = entry.comment
+                        entry3_Button.text = entry.comment + " ("+DateFormat.getDateInstance(android.icu.text.DateFormat.MEDIUM).format(this.dreamWithEntries.dream.dateRevealed)+")"
                         entry3_Button.visibility = View.VISIBLE
                     }
                 }
@@ -184,9 +189,11 @@ class DreamDetailFragment : Fragment() {
 
         if (dreamWithEntries.dream.isRealized == true){
             entry4_Button.text = "DREAM REALIZED"
+            entry4_Button.setBackgroundColor(Color.parseColor("#8DD33B"))
         }
         else if (dreamWithEntries.dream.isDeferred == true){
             entry4_Button.text = "DREAM DEFERRED"
+            entry4_Button.setBackgroundColor(Color.parseColor("#F06055"))
         }
 
 

@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import edu.vt.cs.cs5254.dreamcatcher.database.Dream
+import java.text.DateFormat
 import java.util.*
 
 private const val TAG = "DreamListFragment"
@@ -103,7 +104,7 @@ class DreamListFragment : Fragment() {
         fun bind(dream: Dream){
             this.dream = dream
             titleTextView.text = this.dream.description
-            dateTextView.text = this.dream.dateRevealed.toString()
+            dateTextView.text = DateFormat.getDateInstance(android.icu.text.DateFormat.MEDIUM).format(this.dream.dateRevealed)
 
             when {
                 dream.isRealized -> {
