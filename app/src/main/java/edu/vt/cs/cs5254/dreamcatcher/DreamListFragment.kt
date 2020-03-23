@@ -87,7 +87,7 @@ class DreamListFragment : Fragment() {
         dreamRecyclerView.adapter = adapter
     }
 
-    private inner class DreamHolder(view: View)
+    inner class DreamHolder(view: View)
         :RecyclerView.ViewHolder(view), View.OnClickListener{
 
         private lateinit var dream: Dream

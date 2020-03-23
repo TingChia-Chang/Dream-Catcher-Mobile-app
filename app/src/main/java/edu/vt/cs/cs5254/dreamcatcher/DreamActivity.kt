@@ -6,9 +6,9 @@ import android.util.Log
 import java.util.*
 
 
-private const val TAG = "MainActivity"
+private const val TAG = "DreamActivity"
 
-class MainActivity : AppCompatActivity(),
+class DreamActivity : AppCompatActivity(),
     DreamListFragment.Callbacks{
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
