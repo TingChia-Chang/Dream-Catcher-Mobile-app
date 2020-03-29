@@ -16,6 +16,7 @@ import android.widget.EditText
 import edu.vt.cs.cs5254.dreamcatcher.database.Dream
 import java.util.*
 import androidx.lifecycle.Observer
+import edu.vt.cs.cs5254.dreamcatcher.database.DreamEntry
 import edu.vt.cs.cs5254.dreamcatcher.database.DreamEntryKind
 import edu.vt.cs.cs5254.dreamcatcher.database.DreamWithEntries
 import java.text.DateFormat
@@ -73,44 +74,50 @@ class DreamDetailFragment : Fragment() {
         realizedCheckBox = view.findViewById(R.id.dream_realized) as CheckBox
         deferredCheckBox = view.findViewById(R.id.dream_deferred) as CheckBox
 
+
         entry1_Button.visibility = View.GONE
         entry2_Button.visibility = View.GONE
         entry3_Button.visibility = View.GONE
 
 
 
-
         realizedCheckBox.apply {
             setOnCheckedChangeListener { _, isChecked ->
-                if (realizedCheckBox.isChecked == true){
+                if (realizedCheckBox.isChecked){
                     entry4_Button.visibility = View.VISIBLE
                 }
 
                 dreamWithEntries.dream.isRealized = isChecked
                 deferredCheckBox.isEnabled = !dreamWithEntries.dream.isRealized
-                entry4_Button.text = "DREAM REALIZED"
-                entry4_Button.setBackgroundColor(Color.parseColor("#8DD33B"))
+                val temp = dreamWithEntries.dreamEntries.filter { it.kind == DreamEntryKind.DEFERRED }
+                dreamWithEntries.dreamEntries = dreamWithEntries.dreamEntries - temp
+                dreamWithEntries.dreamEntries = dreamWithEntries.dreamEntries + DreamEntry(dreamId = dreamWithEntries.dream.id, kind = DreamEntryKind.REALIZED, comment = "DREAM REALIZED")
+
                 if (realizedCheckBox.isChecked == false && deferredCheckBox.isChecked == false){
                     entry4_Button.visibility = View.GONE
                 }
+                dreamDetailViewModel.saveDreams(dreamWithEntries)
 
             }
         }
 
         deferredCheckBox.apply {
             setOnCheckedChangeListener { _, isChecked ->
-                if(deferredCheckBox.isChecked == true){
+                if(deferredCheckBox.isChecked){
                     entry4_Button.visibility = View.VISIBLE
                 }
                 dreamWithEntries.dream.isDeferred = isChecked
                 realizedCheckBox.isEnabled = !dreamWithEntries.dream.isDeferred
-                entry4_Button.text = "DREAM DEFERRED"
-                entry4_Button.setBackgroundColor(Color.parseColor("#F06055"))
+                val temp2 = dreamWithEntries.dreamEntries.filter { it.kind == DreamEntryKind.REALIZED }
+                dreamWithEntries.dreamEntries = dreamWithEntries.dreamEntries - temp2
+                dreamWithEntries.dreamEntries = dreamWithEntries.dreamEntries + DreamEntry(dreamId = dreamWithEntries.dream.id, kind = DreamEntryKind.DEFERRED, comment = "DREAM DEFERRED")
                 if (realizedCheckBox.isChecked == false && deferredCheckBox.isChecked == false){
                     entry4_Button.visibility = View.GONE
                 }
+                dreamDetailViewModel.saveDreams(dreamWithEntries)
             }
         }
+
 
         return view
     }
@@ -184,21 +191,17 @@ class DreamDetailFragment : Fragment() {
             else if (entry.kind == DreamEntryKind.REVEALED){
                 entry0_Button.text = "DREAM REVEALED"
             }
+            else if (entry.kind == DreamEntryKind.REALIZED){
+                entry4_Button.text = entry.comment
+                entry4_Button.setBackgroundColor(Color.parseColor("#8DD33B"))
+            }
+            else if (entry.kind == DreamEntryKind.DEFERRED){
+                entry4_Button.text = entry.comment
+                entry4_Button.setBackgroundColor(Color.parseColor("#F06055"))
+            }
+
 
         }
-
-        if (dreamWithEntries.dream.isRealized == true){
-            entry4_Button.text = "DREAM REALIZED"
-            entry4_Button.setBackgroundColor(Color.parseColor("#8DD33B"))
-        }
-        else if (dreamWithEntries.dream.isDeferred == true){
-            entry4_Button.text = "DREAM DEFERRED"
-            entry4_Button.setBackgroundColor(Color.parseColor("#F06055"))
-        }
-
-
-
-
 
 
 
