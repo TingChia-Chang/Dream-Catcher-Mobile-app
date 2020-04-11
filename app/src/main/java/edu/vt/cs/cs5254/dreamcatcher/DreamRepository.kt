@@ -50,6 +50,17 @@ class DreamRepository private constructor(context: Context) {
         }
     }
 
+    fun updateDream(dream: Dream){
+        executor.execute{
+            dreamDao.updateDream(dream)
+        }
+    }
+    fun addDream(dream:Dream){
+        executor.execute {
+            dreamDao.addDream(dream)
+        }
+    }
+
     fun reconstructSampleDatabase() = dreamDao.reconstructSampleDatabase()
 
     companion object {

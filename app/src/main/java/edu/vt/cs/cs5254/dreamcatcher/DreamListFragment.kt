@@ -5,10 +5,8 @@ import android.nfc.Tag
 import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.util.Log
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -42,7 +40,10 @@ class DreamListFragment : Fragment() {
         callbacks = context as Callbacks?
     }
 
-
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
 
     companion object {
         fun newInstance(): DreamListFragment{
@@ -81,6 +82,23 @@ class DreamListFragment : Fragment() {
     override fun onDetach() {
         super.onDetach()
         callbacks = null
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.fragment_dream_list,menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId){
+            R.id.new_deam -> {
+                val dream = Dream()
+                dreamListViewModel.addDream(dream)
+                callbacks?.onDreamSelected(dream.id)
+                true
+            }
+            else->return super.onOptionsItemSelected(item)
+        }
     }
 
     private fun updateUI(dreams: List<Dream>){
