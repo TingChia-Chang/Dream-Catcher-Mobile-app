@@ -1,19 +1,19 @@
 package edu.vt.cs.cs5254.dreamcatcher
 
-import android.graphics.Color
+import android.content.Intent
+import android.net.Uri
 import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
-import edu.vt.cs.cs5254.dreamcatcher.database.Dream
+import android.widget.ImageView
+import androidx.core.content.FileProvider
 import java.util.*
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -21,10 +21,12 @@ import androidx.recyclerview.widget.RecyclerView
 import edu.vt.cs.cs5254.dreamcatcher.database.DreamEntry
 import edu.vt.cs.cs5254.dreamcatcher.database.DreamEntryKind
 import edu.vt.cs.cs5254.dreamcatcher.database.DreamWithEntries
-import java.text.DateFormat
+import edu.vt.cs.cs5254.dreamcatcher.util.CameraUtil
+import java.io.File
 
 private const val TAG = "DreamDetailFragment"
 private const val ARG_DREAM_ID = "dream_id"
+private const val REQUEST_PHOTO = 2
 
 class DreamDetailFragment : Fragment() {
 
@@ -42,15 +44,13 @@ class DreamDetailFragment : Fragment() {
     private lateinit var viewModel: DreamDetailViewModel
 
     private lateinit var titleField: EditText
-//    private lateinit var entry0_Button: Button
-//    private lateinit var entry1_Button: Button
-//    private lateinit var entry2_Button: Button
-//    private lateinit var entry3_Button: Button
-//    private lateinit var entry4_Button: Button
     private lateinit var realizedCheckBox: CheckBox
     private lateinit var deferredCheckBox: CheckBox
     private lateinit var dreamWithEntries: DreamWithEntries
-
+    private lateinit var photoView: ImageView
+    private lateinit var iconView: ImageView
+    private lateinit var photoFile: File
+    private lateinit var photoUri: Uri
 
     private lateinit var dreamRecyclerView: RecyclerView
     private var adapter: DreamDetailFragment.DreamEntryAdapter?= DreamEntryAdapter(emptyList())
@@ -61,7 +61,7 @@ class DreamDetailFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        setHasOptionsMenu(true)
         val dreamID: UUID = arguments?.getSerializable(ARG_DREAM_ID) as UUID
         dreamDetailViewModel.loadDream(dreamID)
 
@@ -73,13 +73,10 @@ class DreamDetailFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.dream_detail_fragment, container, false)
         titleField = view.findViewById(R.id.dream_title) as EditText
-//        entry0_Button = view.findViewById(R.id.dream_entry_0_button) as Button
-//        entry1_Button = view.findViewById(R.id.dream_entry_1_button) as Button
-//        entry2_Button = view.findViewById(R.id.dream_entry_2_button) as Button
-//        entry3_Button = view.findViewById(R.id.dream_entry_3_button) as Button
-//        entry4_Button = view.findViewById(R.id.dream_entry_4_button) as Button
         realizedCheckBox = view.findViewById(R.id.dream_realized) as CheckBox
         deferredCheckBox = view.findViewById(R.id.dream_deferred) as CheckBox
+        photoView = view.findViewById(R.id.dream_photo) as ImageView
+        iconView = view.findViewById(R.id.dream_icon) as ImageView
 
 
         dreamRecyclerView = view.findViewById(R.id.dream_entry_recycler_view) as RecyclerView
@@ -87,27 +84,20 @@ class DreamDetailFragment : Fragment() {
         dreamRecyclerView.adapter = adapter
 
 
-//        entry1_Button.visibility = View.GONE
-//        entry2_Button.visibility = View.GONE
-//        entry3_Button.visibility = View.GONE
-
 
 
         realizedCheckBox.apply {
             setOnCheckedChangeListener { _, isChecked ->
-//                if (realizedCheckBox.isChecked){
-//                    entry4_Button.visibility = View.VISIBLE
-//                }
 
                 dreamWithEntries.dream.isRealized = isChecked
                 deferredCheckBox.isEnabled = !dreamWithEntries.dream.isRealized
-                val temp = dreamWithEntries.dreamEntries.filter { it.kind == DreamEntryKind.DEFERRED }
-                dreamWithEntries.dreamEntries = dreamWithEntries.dreamEntries - temp
-                dreamWithEntries.dreamEntries = dreamWithEntries.dreamEntries + DreamEntry(dreamId = dreamWithEntries.dream.id, kind = DreamEntryKind.REALIZED, comment = "DREAM REALIZED")
+                val temp = dreamWithEntries.dreamEntries.filter { it.kind == DreamEntryKind.DEFERRED || it.kind == DreamEntryKind.REALIZED}
 
-//                if (realizedCheckBox.isChecked == false && deferredCheckBox.isChecked == false){
-//                    entry4_Button.visibility = View.GONE
-//                }
+                dreamWithEntries.dreamEntries = dreamWithEntries.dreamEntries - temp
+                if(isChecked){
+                    dreamWithEntries.dreamEntries = dreamWithEntries.dreamEntries + DreamEntry(dreamId = dreamWithEntries.dream.id, kind = DreamEntryKind.REALIZED, comment = "DREAM REALIZED")
+                }
+
                 dreamDetailViewModel.saveDreams(dreamWithEntries)
 
             }
@@ -115,17 +105,15 @@ class DreamDetailFragment : Fragment() {
 
         deferredCheckBox.apply {
             setOnCheckedChangeListener { _, isChecked ->
-//                if(deferredCheckBox.isChecked){
-//                    entry4_Button.visibility = View.VISIBLE
-//                }
+
                 dreamWithEntries.dream.isDeferred = isChecked
                 realizedCheckBox.isEnabled = !dreamWithEntries.dream.isDeferred
-                val temp2 = dreamWithEntries.dreamEntries.filter { it.kind == DreamEntryKind.REALIZED }
+                val temp2 = dreamWithEntries.dreamEntries.filter { it.kind == DreamEntryKind.REALIZED || it.kind == DreamEntryKind.DEFERRED}
                 dreamWithEntries.dreamEntries = dreamWithEntries.dreamEntries - temp2
-                dreamWithEntries.dreamEntries = dreamWithEntries.dreamEntries + DreamEntry(dreamId = dreamWithEntries.dream.id, kind = DreamEntryKind.DEFERRED, comment = "DREAM DEFERRED")
-//                if (realizedCheckBox.isChecked == false && deferredCheckBox.isChecked == false){
-//                    entry4_Button.visibility = View.GONE
-//                }
+                if (isChecked) {
+                    dreamWithEntries.dreamEntries = dreamWithEntries.dreamEntries + DreamEntry(dreamId = dreamWithEntries.dream.id, kind = DreamEntryKind.DEFERRED, comment = "DREAM DEFERRED")
+                }
+
                 dreamDetailViewModel.saveDreams(dreamWithEntries)
             }
         }
@@ -141,6 +129,10 @@ class DreamDetailFragment : Fragment() {
             Observer { dreamEntries ->
                 dreamEntries?.let {
                     this.dreamWithEntries = it
+                    photoFile = dreamDetailViewModel.getPhotoFile(dreamEntries.dream)
+                    photoUri = FileProvider.getUriForFile(requireActivity(),
+                        "com.bignerdranch.android.criminalintent.fileprovider",
+                        photoFile)
                     updateUI()
                 }
 
@@ -152,6 +144,32 @@ class DreamDetailFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(DreamDetailViewModel::class.java)
         // TODO: Use the ViewModel
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.fragment_dream_detail,menu)
+        val cameraAvailable = CameraUtil.isCameraAvailable(requireActivity())
+        val menuPhoto = menu.findItem(R.id.take_dream_photo)
+        val menuShare = menu.findItem(R.id.share_dream)
+        menuPhoto.apply {
+            Log.d(TAG, "Camera available: $cameraAvailable")
+            isEnabled = cameraAvailable
+            isVisible = cameraAvailable
+        }
+
+    }
+
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId){
+            R.id.take_dream_photo -> {
+                val captureImageIntent = CameraUtil.createCaptureImageIntent(requireActivity(), photoUri)
+                startActivity(captureImageIntent)
+                true
+            }
+            else -> return super.onOptionsItemSelected(item)
+        }
     }
 
     override fun onStart() {
@@ -179,43 +197,9 @@ class DreamDetailFragment : Fragment() {
         dreamDetailViewModel.saveDreams(dreamWithEntries)
     }
 
+
     private fun updateUI() {
         titleField.setText(dreamWithEntries.dream.description)
-//        var count = 0
-//        for (entry in dreamWithEntries.dreamEntries){
-//            if (entry.kind == DreamEntryKind.COMMENT){
-//                when (count) {
-//                    0 -> {
-//                        entry1_Button.text = entry.comment + " ("+DateFormat.getDateInstance(android.icu.text.DateFormat.MEDIUM).format(this.dreamWithEntries.dream.dateRevealed)+")"
-//                        entry1_Button.visibility = View.VISIBLE
-//                    }
-//                    1 -> {
-//                        entry2_Button.text = entry.comment + " ("+DateFormat.getDateInstance(android.icu.text.DateFormat.MEDIUM).format(this.dreamWithEntries.dream.dateRevealed)+")"
-//                        entry2_Button.visibility = View.VISIBLE
-//                    }
-//                    2 -> {
-//                        entry3_Button.text = entry.comment + " ("+DateFormat.getDateInstance(android.icu.text.DateFormat.MEDIUM).format(this.dreamWithEntries.dream.dateRevealed)+")"
-//                        entry3_Button.visibility = View.VISIBLE
-//                    }
-//                }
-//                count += 1
-//            }
-//            else if (entry.kind == DreamEntryKind.REVEALED){
-//                entry0_Button.text = "DREAM REVEALED"
-//            }
-//            else if (entry.kind == DreamEntryKind.REALIZED){
-//                entry4_Button.text = entry.comment
-//                entry4_Button.setBackgroundColor(Color.parseColor("#8DD33B"))
-//            }
-//            else if (entry.kind == DreamEntryKind.DEFERRED){
-//                entry4_Button.text = entry.comment
-//                entry4_Button.setBackgroundColor(Color.parseColor("#F06055"))
-//            }
-//
-//
-//        }
-
-
 
         realizedCheckBox.apply {
             isChecked = dreamWithEntries.dream.isRealized
@@ -229,7 +213,19 @@ class DreamDetailFragment : Fragment() {
         }
 
         adapter = DreamEntryAdapter(dreamWithEntries.dreamEntries)
+        Log.d("test", dreamWithEntries.dreamEntries.size.toString())
         dreamRecyclerView.adapter = adapter
+
+        updatePhotoView()
+    }
+
+    private fun updatePhotoView(){
+        if(photoFile.exists()){
+            val bitmap = CameraUtil.getScaledBitmap(photoFile.path, requireActivity())
+            photoView.setImageBitmap(bitmap)
+        }else{
+            photoView.setImageDrawable(null)
+        }
     }
 
     inner class DreamEntryHolder(view: View)

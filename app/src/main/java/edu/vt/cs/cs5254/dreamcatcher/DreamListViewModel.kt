@@ -4,6 +4,7 @@ import android.view.View
 import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.RecyclerView
 import edu.vt.cs.cs5254.dreamcatcher.database.Dream
+import edu.vt.cs.cs5254.dreamcatcher.database.DreamWithEntries
 
 
 class DreamListViewModel : ViewModel() {
@@ -12,8 +13,8 @@ class DreamListViewModel : ViewModel() {
     val dreamListLiveData = dreamRepository.getDreams()
 
 
-    fun addDream(dream:Dream){
-        dreamRepository.addDream(dream)
+    fun addDreamWithEntries(dreamWithEntries: DreamWithEntries){
+        dreamRepository.addDreamWithEntries(dreamWithEntries)
     }
 
     fun saveDream(dream: Dream){

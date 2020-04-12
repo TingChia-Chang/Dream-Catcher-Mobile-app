@@ -12,8 +12,9 @@ data class Dream(@PrimaryKey val id: UUID = UUID.randomUUID(),
                  var description: String = "",
                  var dateRevealed: Date = Date(),
                  var isRealized: Boolean = false,
-                 var isDeferred: Boolean = false
-)
+                 var isDeferred: Boolean = false){
+    val photoFileName get() = "IMG_$id.jpg"
+}
 
 @Entity(tableName= "dream_entry",
     foreignKeys = [ForeignKey(entity = Dream::class,

@@ -15,6 +15,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import edu.vt.cs.cs5254.dreamcatcher.database.Dream
+import edu.vt.cs.cs5254.dreamcatcher.database.DreamEntry
+import edu.vt.cs.cs5254.dreamcatcher.database.DreamEntryKind
+import edu.vt.cs.cs5254.dreamcatcher.database.DreamWithEntries
 import java.text.DateFormat
 import java.util.*
 
@@ -93,7 +96,17 @@ class DreamListFragment : Fragment() {
         return when(item.itemId){
             R.id.new_deam -> {
                 val dream = Dream()
-                dreamListViewModel.addDream(dream)
+
+                val dreamEntries = listOf(
+                    DreamEntry(
+                        dreamId = dream.id,
+                        kind = DreamEntryKind.REVEALED,
+                        comment = "Dream Revealed"
+                    )
+                )
+                val dreamWithEntries = DreamWithEntries(dream, dreamEntries)
+
+                dreamListViewModel.addDreamWithEntries(dreamWithEntries)
                 callbacks?.onDreamSelected(dream.id)
                 true
             }

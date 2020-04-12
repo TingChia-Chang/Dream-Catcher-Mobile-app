@@ -9,6 +9,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import edu.vt.cs.cs5254.dreamcatcher.database.Dream
 import edu.vt.cs.cs5254.dreamcatcher.database.DreamDatabase
 import edu.vt.cs.cs5254.dreamcatcher.database.DreamWithEntries
+import java.io.File
 import java.util.*
 import java.util.concurrent.Executors
 
@@ -38,6 +39,7 @@ class DreamRepository private constructor(context: Context) {
     private val dreamDao = database.dreamDao()
 
     private val executor = Executors.newSingleThreadExecutor()
+    private val filesDir = context.applicationContext.filesDir
 
     fun getDreams(): LiveData<List<Dream>> = dreamDao.getDreams()
 
@@ -55,11 +57,12 @@ class DreamRepository private constructor(context: Context) {
             dreamDao.updateDream(dream)
         }
     }
-    fun addDream(dream:Dream){
+    fun addDreamWithEntries(dreamWithEntries: DreamWithEntries){
         executor.execute {
-            dreamDao.addDream(dream)
+            dreamDao.addDreamWithEntries(dreamWithEntries)
         }
     }
+    fun getPhotoFile(dream: Dream): File =File(filesDir, dream.photoFileName)
 
     //fun reconstructSampleDatabase() = dreamDao.reconstructSampleDatabase()
 
