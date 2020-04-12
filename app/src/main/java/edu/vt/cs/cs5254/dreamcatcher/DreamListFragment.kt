@@ -101,6 +101,7 @@ class DreamListFragment : Fragment() {
         }
     }
 
+
     private fun updateUI(dreams: List<Dream>){
         adapter = DreamAdapter(dreams)
         dreamRecyclerView.adapter = adapter

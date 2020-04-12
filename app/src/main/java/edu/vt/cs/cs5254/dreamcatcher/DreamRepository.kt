@@ -22,9 +22,9 @@ class DreamRepository private constructor(context: Context) {
                 super.onOpen(db)
                 Log.d(TAG, "repopulateRoomDatabaseCallback.onOpen")
                 executor.execute {
-                    dreamDao.apply {
-                        reconstructSampleDatabase()
-                    }
+//                    dreamDao.apply {
+//                        reconstructSampleDatabase()
+//                    }
                 }
             }
         }
@@ -61,7 +61,7 @@ class DreamRepository private constructor(context: Context) {
         }
     }
 
-    fun reconstructSampleDatabase() = dreamDao.reconstructSampleDatabase()
+    //fun reconstructSampleDatabase() = dreamDao.reconstructSampleDatabase()
 
     companion object {
         private const val TAG = "DreamRepository"
