@@ -13,5 +13,7 @@
     <string name="new_dream">New Dream</string>
     <string name="new_photo">Take Dream Photo</string>
     <string name="share_dream">Share Dream</string>
+    <string name="dream_report_realized">The </string>
+    <string name="send_report">Send Report</string>
 
 </resources>

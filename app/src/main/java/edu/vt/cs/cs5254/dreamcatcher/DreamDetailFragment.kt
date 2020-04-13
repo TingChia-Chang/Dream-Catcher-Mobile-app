@@ -23,6 +23,7 @@ import edu.vt.cs.cs5254.dreamcatcher.database.DreamEntryKind
 import edu.vt.cs.cs5254.dreamcatcher.database.DreamWithEntries
 import edu.vt.cs.cs5254.dreamcatcher.util.CameraUtil
 import java.io.File
+import java.text.DateFormat
 
 private const val TAG = "DreamDetailFragment"
 private const val ARG_DREAM_ID = "dream_id"
@@ -51,6 +52,7 @@ class DreamDetailFragment : Fragment() {
     private lateinit var iconView: ImageView
     private lateinit var photoFile: File
     private lateinit var photoUri: Uri
+    private var df = DateFormat.getDateInstance(DateFormat.MEDIUM)
 
     private lateinit var dreamRecyclerView: RecyclerView
     private var adapter: DreamDetailFragment.DreamEntryAdapter?= DreamEntryAdapter(emptyList())
@@ -89,6 +91,9 @@ class DreamDetailFragment : Fragment() {
         realizedCheckBox.apply {
             setOnCheckedChangeListener { _, isChecked ->
 
+//                iconView.setImageResource(R.drawable.dream_realized_icon)
+//                iconView.tag = R.drawable.dream_realized_icon
+
                 dreamWithEntries.dream.isRealized = isChecked
                 deferredCheckBox.isEnabled = !dreamWithEntries.dream.isRealized
                 val temp = dreamWithEntries.dreamEntries.filter { it.kind == DreamEntryKind.DEFERRED || it.kind == DreamEntryKind.REALIZED}
@@ -105,6 +110,9 @@ class DreamDetailFragment : Fragment() {
 
         deferredCheckBox.apply {
             setOnCheckedChangeListener { _, isChecked ->
+
+//                iconView.setImageResource(R.drawable.dream_deferred_icon)
+//                iconView.tag = R.drawable.dream_deferred_icon
 
                 dreamWithEntries.dream.isDeferred = isChecked
                 realizedCheckBox.isEnabled = !dreamWithEntries.dream.isDeferred
@@ -168,6 +176,23 @@ class DreamDetailFragment : Fragment() {
                 startActivity(captureImageIntent)
                 true
             }
+            R.id.share_dream ->{
+                Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, getDreamReport())
+                    putExtra(
+                        Intent.EXTRA_SUBJECT,
+                        dreamWithEntries.dream.description
+                    ).also {
+                        intent ->
+                        val chooserIntent =
+                            Intent.createChooser(intent, getString(R.string.send_report))
+                        startActivity(chooserIntent)
+                    }
+                }
+
+                true
+            }
             else -> return super.onOptionsItemSelected(item)
         }
     }
@@ -212,6 +237,22 @@ class DreamDetailFragment : Fragment() {
             jumpDrawablesToCurrentState()
         }
 
+        when{
+            dreamWithEntries.dream.isRealized -> {
+                iconView.setImageResource(R.drawable.dream_realized_icon)
+                iconView.tag = R.drawable.dream_realized_icon
+            }
+            dreamWithEntries.dream.isDeferred -> {
+                iconView.setImageResource(R.drawable.dream_deferred_icon)
+                iconView.tag = R.drawable.dream_deferred_icon
+            }
+            else -> {
+                iconView.setImageResource(0)
+                iconView.tag = 0
+            }
+        }
+
+
         adapter = DreamEntryAdapter(dreamWithEntries.dreamEntries)
         Log.d("test", dreamWithEntries.dreamEntries.size.toString())
         dreamRecyclerView.adapter = adapter
@@ -226,6 +267,14 @@ class DreamDetailFragment : Fragment() {
         }else{
             photoView.setImageDrawable(null)
         }
+    }
+
+    private fun getDreamReport(): String{
+        var result = "# " + dreamWithEntries.dream.description + "\n"
+        dreamWithEntries.dreamEntries.forEach {
+            result += it.comment + " (" + df.format(it.dateCreated) + ")\n"
+        }
+        return result
     }
 
     inner class DreamEntryHolder(view: View)
