@@ -16,4 +16,7 @@
     <string name="dream_report_realized">The </string>
     <string name="send_report">Send Report</string>
 
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>

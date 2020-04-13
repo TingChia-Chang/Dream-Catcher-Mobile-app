@@ -14,6 +14,7 @@ import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageView
 import androidx.core.content.FileProvider
+import androidx.fragment.app.DialogFragment
 import java.util.*
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -52,6 +53,7 @@ class DreamDetailFragment : Fragment() {
     private lateinit var iconView: ImageView
     private lateinit var photoFile: File
     private lateinit var photoUri: Uri
+    private lateinit var fab: View
     private var df = DateFormat.getDateInstance(DateFormat.MEDIUM)
 
     private lateinit var dreamRecyclerView: RecyclerView
@@ -79,6 +81,7 @@ class DreamDetailFragment : Fragment() {
         deferredCheckBox = view.findViewById(R.id.dream_deferred) as CheckBox
         photoView = view.findViewById(R.id.dream_photo) as ImageView
         iconView = view.findViewById(R.id.dream_icon) as ImageView
+        fab = view.findViewById(R.id.add_comment_fab) as View
 
 
         dreamRecyclerView = view.findViewById(R.id.dream_entry_recycler_view) as RecyclerView
@@ -126,6 +129,13 @@ class DreamDetailFragment : Fragment() {
             }
         }
 
+        fab.setOnClickListener{view->
+            val fragment = AddDreamEntryFragment.newInstance()
+            fragment.show(parentFragmentManager, "dialog")
+
+
+
+        }
 
         return view
     }
