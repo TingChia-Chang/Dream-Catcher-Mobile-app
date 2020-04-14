@@ -1,6 +1,7 @@
 package edu.vt.cs.cs5254.dreamcatcher
 
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
@@ -17,8 +18,10 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.DialogFragment
 import java.util.*
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import edu.vt.cs.cs5254.dreamcatcher.database.DreamEntry
 import edu.vt.cs.cs5254.dreamcatcher.database.DreamEntryKind
 import edu.vt.cs.cs5254.dreamcatcher.database.DreamWithEntries
@@ -30,7 +33,14 @@ private const val TAG = "DreamDetailFragment"
 private const val ARG_DREAM_ID = "dream_id"
 private const val REQUEST_PHOTO = 2
 
-class DreamDetailFragment : Fragment() {
+class DreamDetailFragment : Fragment(), AddDreamEntryFragment.Callbacks {
+    override fun onCommentCreated(comment: String, createDate: Date) {
+        Log.d("test", "detailfrag $comment, $createDate")
+
+        dreamWithEntries.dreamEntries += DreamEntry(dreamId = dreamWithEntries.dream.id, comment = comment, dateCreated = createDate)
+        viewModel.updateDreamEntries(dreamWithEntries.dreamEntries)
+
+    }
 
     companion object {
         fun newInstance(dreamID: UUID): DreamDetailFragment {
@@ -53,11 +63,11 @@ class DreamDetailFragment : Fragment() {
     private lateinit var iconView: ImageView
     private lateinit var photoFile: File
     private lateinit var photoUri: Uri
-    private lateinit var fab: View
+    private lateinit var fab: FloatingActionButton
     private var df = DateFormat.getDateInstance(DateFormat.MEDIUM)
 
     private lateinit var dreamRecyclerView: RecyclerView
-    private var adapter: DreamDetailFragment.DreamEntryAdapter?= DreamEntryAdapter(emptyList())
+    private var adapter: DreamEntryAdapter?= DreamEntryAdapter(emptyList())
 
     private val dreamDetailViewModel: DreamDetailViewModel by lazy {
         ViewModelProviders.of(this).get(DreamDetailViewModel::class.java)
@@ -81,12 +91,16 @@ class DreamDetailFragment : Fragment() {
         deferredCheckBox = view.findViewById(R.id.dream_deferred) as CheckBox
         photoView = view.findViewById(R.id.dream_photo) as ImageView
         iconView = view.findViewById(R.id.dream_icon) as ImageView
-        fab = view.findViewById(R.id.add_comment_fab) as View
+        fab = view.findViewById(R.id.add_comment_fab)
 
 
         dreamRecyclerView = view.findViewById(R.id.dream_entry_recycler_view) as RecyclerView
         dreamRecyclerView.layoutManager = LinearLayoutManager(context)
         dreamRecyclerView.adapter = adapter
+
+        val itemTouchHelper = ItemTouchHelper(SwipeToDeleteCallback())
+        itemTouchHelper.attachToRecyclerView((dreamRecyclerView))
+
 
 
 
@@ -130,10 +144,9 @@ class DreamDetailFragment : Fragment() {
         }
 
         fab.setOnClickListener{view->
-            val fragment = AddDreamEntryFragment.newInstance()
+            val fragment: DialogFragment = AddDreamEntryFragment.newInstance()
+            fragment.setTargetFragment(this, 1)
             fragment.show(parentFragmentManager, "dialog")
-
-
 
         }
 
@@ -287,6 +300,26 @@ class DreamDetailFragment : Fragment() {
         return result
     }
 
+    inner class SwipeToDeleteCallback() :
+        ItemTouchHelper.SimpleCallback(
+            0,
+            ItemTouchHelper.LEFT ){
+        override fun onMove(
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            target: RecyclerView.ViewHolder
+        ): Boolean {
+           return false
+        }
+
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+            val position = viewHolder.adapterPosition
+            adapter?.deleteItem(position)
+
+        }
+    }
+
+
     inner class DreamEntryHolder(view: View)
         :RecyclerView.ViewHolder(view) {
 
@@ -297,7 +330,35 @@ class DreamDetailFragment : Fragment() {
 
         fun bind(dreamEntry: DreamEntry){
             this.dreamEntry = dreamEntry
-            button.text = this.dreamEntry.comment
+            when(dreamEntry.kind){
+                DreamEntryKind.REVEALED -> {
+                    button.apply {
+                        setText(dreamEntry.comment)
+                        setBackgroundColor(Color.YELLOW)
+                        setTextColor(Color.BLACK)
+                    }
+                }
+                DreamEntryKind.COMMENT -> {
+                    button.apply {
+                        setText(dreamEntry.comment + " (" + df.format(dreamEntry.dateCreated) + ')')
+                        setBackgroundColor(Color.LTGRAY)
+                    }
+                }
+                DreamEntryKind.REALIZED -> {
+                    button.apply {
+                        setText(dreamEntry.comment)
+                        setBackgroundColor(Color.GREEN)
+                    }
+                }
+                DreamEntryKind.DEFERRED -> {
+                    button.apply {
+                        setText(dreamEntry.comment)
+                        setBackgroundColor(Color.RED)
+                        setTextColor(Color.WHITE)
+                    }
+                }
+            }
+
         }
     }
 
@@ -316,8 +377,21 @@ class DreamDetailFragment : Fragment() {
             holder.bind(dreamEntry)
         }
 
+        fun deleteItem(position: Int) {
+            val entryToDelete = dreamEntries[position]
+            Log.d("test", "${dreamEntries.size}")
+            if (entryToDelete.kind == DreamEntryKind.COMMENT){
+                dreamEntries = dreamEntries - entryToDelete
+                dreamDetailViewModel.updateDreamEntries(dreamEntries)
+                notifyItemRemoved(position)
+            }
+            else{
+                notifyItemChanged(position)
+            }
 
+        }
 
     }
+
 
 }

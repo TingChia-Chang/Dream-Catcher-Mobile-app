@@ -6,9 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
-import edu.vt.cs.cs5254.dreamcatcher.database.Dream
-import edu.vt.cs.cs5254.dreamcatcher.database.DreamDatabase
-import edu.vt.cs.cs5254.dreamcatcher.database.DreamWithEntries
+import edu.vt.cs.cs5254.dreamcatcher.database.*
 import java.io.File
 import java.util.*
 import java.util.concurrent.Executors
@@ -62,6 +60,7 @@ class DreamRepository private constructor(context: Context) {
             dreamDao.addDreamWithEntries(dreamWithEntries)
         }
     }
+
     fun getPhotoFile(dream: Dream): File =File(filesDir, dream.photoFileName)
 
     //fun reconstructSampleDatabase() = dreamDao.reconstructSampleDatabase()

@@ -4,6 +4,7 @@ package edu.vt.cs.cs5254.dreamcatcher
 import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
+import java.util.*
 
 class AddDreamEntryFragment : DialogFragment() {
     lateinit var commentText: EditText
@@ -23,7 +25,13 @@ class AddDreamEntryFragment : DialogFragment() {
         return AlertDialog.Builder(activity)
             .setTitle("Add Comment")
             .setView(dialoglayout)
-            .setPositiveButton(android.R.string.ok){ dialog, which ->  }
+            .setPositiveButton(android.R.string.ok){ _, _ ->
+                targetFragment?.let { fragment ->
+                    Log.d("test", "add dream tag")
+                    (fragment as Callbacks).onCommentCreated(commentText.text.toString(), Date())
+
+                }
+            }
             .setNegativeButton(android.R.string.cancel){ dialog, which ->  }
             .create()
         
@@ -35,5 +43,9 @@ class AddDreamEntryFragment : DialogFragment() {
         @JvmStatic
         fun newInstance() =
             AddDreamEntryFragment()
+    }
+
+    interface Callbacks{
+        fun onCommentCreated(comment: String, createDate: Date)
     }
 }

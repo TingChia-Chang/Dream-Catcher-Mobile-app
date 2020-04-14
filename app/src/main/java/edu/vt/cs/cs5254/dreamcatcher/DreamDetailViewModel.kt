@@ -1,5 +1,6 @@
 package edu.vt.cs.cs5254.dreamcatcher
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
@@ -31,5 +32,19 @@ class DreamDetailViewModel : ViewModel() {
     fun getPhotoFile(dream: Dream): File {
         return dreamRepository.getPhotoFile(dream)
     }
+    fun updateDreamEntries(dreamEntries: List<DreamEntry>){
+        Log.d("test", "${dreamEntries.size}")
+        dreamLiveData.value?.let {
+            it.dreamEntries = dreamEntries
+            dreamRepository.updateDreamWithEntries(it)
+        }
+    }
+
+    fun updateDreamWithEntry(dreamWithEntries: DreamWithEntries){
+        dreamRepository.updateDreamWithEntries(dreamWithEntries)
+    }
+
+
+
 
 }
