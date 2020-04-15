@@ -15,6 +15,10 @@
     <string name="share_dream">Share Dream</string>
     <string name="dream_report_realized">The </string>
     <string name="send_report">Send Report</string>
+    <string name="all_dreams">All Dreams</string>
+    <string name="active_dreams">Active Dreams</string>
+    <string name="realized_dreams">Realized Dreams</string>
+    <string name="deferred_dreams">Deferred Dreams</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
