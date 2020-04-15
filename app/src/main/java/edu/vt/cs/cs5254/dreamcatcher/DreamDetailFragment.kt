@@ -108,11 +108,10 @@ class DreamDetailFragment : Fragment(), AddDreamEntryFragment.Callbacks {
         realizedCheckBox.apply {
             setOnCheckedChangeListener { _, isChecked ->
 
-//                iconView.setImageResource(R.drawable.dream_realized_icon)
-//                iconView.tag = R.drawable.dream_realized_icon
 
                 dreamWithEntries.dream.isRealized = isChecked
                 deferredCheckBox.isEnabled = !dreamWithEntries.dream.isRealized
+                fab.isEnabled = !dreamWithEntries.dream.isRealized
                 val temp = dreamWithEntries.dreamEntries.filter { it.kind == DreamEntryKind.DEFERRED || it.kind == DreamEntryKind.REALIZED}
 
                 dreamWithEntries.dreamEntries = dreamWithEntries.dreamEntries - temp
