@@ -21,6 +21,10 @@ class DreamListViewModel : ViewModel() {
         dreamRepository.updateDream(dream)
     }
 
+    fun deleteAllDreams(){
+        dreamRepository.deleteAllDreams()
+    }
+
 
 
 }

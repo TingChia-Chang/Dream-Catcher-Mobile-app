@@ -61,6 +61,13 @@ class DreamRepository private constructor(context: Context) {
         }
     }
 
+    fun deleteAllDreams(){
+        executor.execute {
+            dreamDao.deleteAllDreams()
+            dreamDao.deleteAllDreamEntries()
+        }
+    }
+
     fun getPhotoFile(dream: Dream): File =File(filesDir, dream.photoFileName)
 
     //fun reconstructSampleDatabase() = dreamDao.reconstructSampleDatabase()

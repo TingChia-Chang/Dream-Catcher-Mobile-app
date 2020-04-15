@@ -125,7 +125,7 @@ class DreamListFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when(item.itemId){
-            R.id.new_deam -> {
+            R.id.new_dream -> {
                 val dream = Dream()
 
                 val dreamEntries = listOf(
@@ -140,6 +140,12 @@ class DreamListFragment : Fragment() {
                 dreamListViewModel.addDreamWithEntries(dreamWithEntries)
                 callbacks?.onDreamSelected(dream.id)
                 true
+            }
+            R.id.delete_all_dreams ->{
+
+                dreamListViewModel.deleteAllDreams()
+                true
+
             }
             else->return super.onOptionsItemSelected(item)
         }
